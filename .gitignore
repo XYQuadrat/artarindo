@@ -127,3 +127,6 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Config file containing bot token and other potentially secret stuff
+config.py
