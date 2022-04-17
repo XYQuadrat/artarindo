@@ -3,7 +3,7 @@ import typing
 
 
 def connect() -> sqlite3.Connection:
-    con = sqlite3.connect("memes.db")
+    con = sqlite3.connect("data/memes.db")
     return con
 
 
