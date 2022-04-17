@@ -130,3 +130,6 @@ dmypy.json
 
 # Config file containing bot token and other potentially secret stuff
 config.py
+
+memes.db
+media/
