@@ -23,3 +23,11 @@ def exists_record(con: sqlite3.Connection, filename: str) -> bool:
     ).fetchone()[0]
 
     return row
+
+
+def update_score(con: sqlite3.Connection, filename: str, score: int):
+    con.execute(
+        """UPDATE MediaItem SET Score = :new_score WHERE Filename = :filename""",
+        {"new_score": score, "filename": filename},
+    )
+    con.commit()
