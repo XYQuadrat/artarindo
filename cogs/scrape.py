@@ -1,15 +1,15 @@
+import logging
+import os
+from typing import Optional
+
+import config
 import discord
 from discord.ext import commands
 
-import logging
 import cogs.sql as sql
-from typing import Optional
-import os
-import config
 
-
-UPVOTE_HASH = 178285450378
-DOWNVOTE_HASH = 180783808875
+UPVOTE_ID = 747783377662378004
+DOWNVOTE_ID = 758262252699779073
 
 
 class Scrape(commands.Cog):
@@ -19,10 +19,11 @@ class Scrape(commands.Cog):
 
     def get_score(self, message):
         upvoteReaction = next(
-            (r for r in message.reactions if hash(r) == UPVOTE_HASH), None
+            (r for r in message.reactions if str(r) == f"<:this:{UPVOTE_ID}>"), None
         )
         downvoteReaction = next(
-            (r for r in message.reactions if hash(r) == DOWNVOTE_HASH), None
+            (r for r in message.reactions if str(r) == f"<:that:{DOWNVOTE_ID}>"),
+            None,
         )
 
         score = None

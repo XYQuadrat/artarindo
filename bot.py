@@ -1,7 +1,9 @@
+import logging
+
 import discord
 from discord.ext import commands
+
 import config
-import logging
 
 bot = commands.Bot(command_prefix="|")
 logging.basicConfig(
