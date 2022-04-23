@@ -31,7 +31,7 @@ class Memeinfo(commands.Cog):
                 value=f"Your memes have an average karma score of `{info.score_avg}`, which places you on rank `{info.score_rank}`.",
             )
 
-            ctx.reply(embed=msg)
+            await ctx.reply(embed=msg)
 
 
 def setup(bot):
