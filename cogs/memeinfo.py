@@ -16,7 +16,7 @@ class Memeinfo(commands.Cog):
     async def memeinfo(
         self, ctx: commands.Context, user: Optional[discord.User] = None
     ):
-        """Get statistics about your meme game in #eth-memes. Optionally takes a username as an argument."""
+        """Get statistics about your meme game in #eth-memes. Optionally takes a mention of a user as an argument to look up their stats."""
         if user:
             username = user.name + "#" + user.discriminator
         else:
@@ -38,15 +38,15 @@ class Memeinfo(commands.Cog):
             )
             msg.add_field(
                 name="No. of Memes",
-                value=f"You have sent `{info.count}` memes in #eth-memes, which places you on rank `{info.count_rank}`.",
+                value=f"You have sent `{info.count}` meme{'s'[:info.count^1]} in #eth-memes, which places you on rank `{info.count_rank}`.",
             )
             msg.add_field(
                 name="Average Karma",
-                value=f"Your memes have an average karma score of `{info.score_avg:.2f}`, which places you on rank `{info.score_rank}`.",
+                value=f"The average karma score of your meme{'s'[:info.count^1]} is `{info.score_avg:.2f}`, which places you on rank `{info.score_rank}`.",
             )
             msg.add_field(
                 name="h-index",
-                value=f"You have a h-index of `{info.hindex}`(that means {info.hindex} with at least {info.hindex} karma).",
+                value=f"You have a h-index of `{info.hindex}` (that means {info.hindex} meme{'s'[:info.hindex^1]} with at least {info.hindex} karma).",
             )
 
             await ctx.reply(embed=msg)
