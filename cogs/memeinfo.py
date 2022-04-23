@@ -1,3 +1,5 @@
+import logging
+from typing import Optional
 import discord
 from discord.ext import commands
 
@@ -10,9 +12,15 @@ class Memeinfo(commands.Cog):
         self.sql_con = sql.connect()
 
     @commands.command()
-    async def memeinfo(self, ctx: commands.Context):
-        """Get statistics about your meme game in #eth-memes. Takes no arguments."""
-        username = ctx.author.name + "#" + ctx.author.discriminator
+    async def memeinfo(
+        self, ctx: commands.Context, user: Optional[discord.User] = None
+    ):
+        """Get statistics about your meme game in #eth-memes. Optionally takes a username as an argument."""
+        if user:
+            username = user.name + "#" + user.discriminator
+        else:
+            username = ctx.author.name + "#" + ctx.author.discriminator
+
         if not sql.user_has_records(self.sql_con, username):
             await ctx.send(
                 "No memes from #eth-memes are associated with your username."
