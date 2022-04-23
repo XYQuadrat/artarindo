@@ -21,17 +21,17 @@ class Memeinfo(commands.Cog):
             sql.user_get_score_info(self.sql_con, username, info)
             sql.user_get_count_info(self.sql_con, username, info)
 
-            msg = discord.Embed()
+            msg = discord.Embed(description=f"Memeinfo for {username}")
             msg.add_field(
-                "No. of Memes",
-                f"You have sent `{info.count}` memes in #eth-memes, which places you on rank `{info.count_rank}`.",
+                name="No. of Memes",
+                value=f"You have sent `{info.count}` memes in #eth-memes, which places you on rank `{info.count_rank}`.",
             )
             msg.add_field(
-                "Average Karma",
-                f"Your memes have an average karma score of `{info.score_avg}`, which places you on rank `{info.score_rank}`.",
+                name="Average Karma",
+                value=f"Your memes have an average karma score of `{info.score_avg}`, which places you on rank `{info.score_rank}`.",
             )
 
-            ctx.send(msg)
+            ctx.reply(embed=msg)
 
 
 def setup(bot):
