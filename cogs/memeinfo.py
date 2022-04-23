@@ -1,5 +1,6 @@
 from cmath import inf
 from operator import truediv
+from turtle import color
 import discord
 from discord.ext import commands
 
@@ -13,6 +14,7 @@ class Memeinfo(commands.Cog):
 
     @commands.command()
     async def memeinfo(self, ctx: commands.Context):
+        """Get statistics about your meme game in #eth-memes. Takes no arguments."""
         username = ctx.author.name + "#" + ctx.author.discriminator
         if not sql.user_has_records(self.sql_con, username):
             ctx.send("No memes from #eth-memes are associated with your username.")
@@ -21,7 +23,10 @@ class Memeinfo(commands.Cog):
             sql.user_get_score_info(self.sql_con, username, info)
             sql.user_get_count_info(self.sql_con, username, info)
 
-            msg = discord.Embed(description=f"Memeinfo for {username}")
+            msg = discord.Embed(
+                description=f"Meme Statistics For {username}",
+                color=discord.Color.dark_blue(),
+            )
             msg.add_field(
                 name="No. of Memes",
                 value=f"You have sent `{info.count}` memes in #eth-memes, which places you on rank `{info.count_rank}`.",
