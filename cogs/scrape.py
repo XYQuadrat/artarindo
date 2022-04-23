@@ -17,6 +17,8 @@ class Scrape(commands.Cog):
     def __init__(self, bot) -> None:
         self.bot = bot
         self.sql_con = sql.connect()
+        self.scrape_new_memes.start()
+        self.scrape_score_updates.start()
 
     def get_score(self, message):
         upvoteReaction = next(
