@@ -17,6 +17,8 @@ class Scrape(commands.Cog):
     def __init__(self, bot) -> None:
         self.bot = bot
         self.sql_con = sql.connect()
+        self.scrape_new_memes.start()
+        self.scrape_score_updates.start()
 
     def get_score(self, message):
         upvoteReaction = next(
@@ -99,16 +101,12 @@ class Scrape(commands.Cog):
     @tasks.loop(minutes=10.0)
     async def scrape_new_memes(self):
         logging.info("Starting scrape of the ten latest messages in #eth-memes")
-        await self.scrape_channel(
-            self, 10, 0, 0, self.bot.get_channel(758293511514226718)
-        )
+        await self.scrape_channel(10, 0, 0, self.bot.get_channel(758293511514226718))
 
     @tasks.loop(hours=24.0)
     async def scrape_score_updates(self):
         logging.info("Starting daily scrape of #eth-memes")
-        await self.scrape_channel(
-            self, None, 0, 0, self.bot.get_channel(758293511514226718)
-        )
+        await self.scrape_channel(None, 0, 0, self.bot.get_channel(758293511514226718))
 
     @scrape.error
     async def scrape_error(ctx, error):
