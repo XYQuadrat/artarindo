@@ -4,7 +4,7 @@ from typing import Optional
 
 import config
 import discord
-from discord.ext import commands
+from discord.ext import tasks, commands
 
 import cogs.sql as sql
 
@@ -46,6 +46,16 @@ class Scrape(commands.Cog):
         else:
             channel = self.bot.get_channel(channel_id)
 
+        await self.scrape_channel(msg_limit, newly_added_count, updated_count, channel)
+
+        await ctx.send(
+            f"Added {newly_added_count} memes to the DB and updated the score for {updated_count} memes."
+        )
+
+    async def scrape_channel(
+        self, msg_limit, newly_added_count, updated_count, channel
+    ):
+
         logging.info(
             "Getting messages from channel %s with limit = %s", channel.name, msg_limit
         )
@@ -82,8 +92,16 @@ class Scrape(commands.Cog):
                     "Inserted attachment %s into DB with score %s", filename, score
                 )
 
-        await ctx.send(
-            f"Added {newly_added_count} memes to the DB and updated the score for {updated_count} memes."
+    @tasks.loop(minutes=10)
+    async def scrape_new_memes(self):
+        await self.scrape_channel(
+            self, 10, 0, 0, self.bot.get_channel(758293511514226718)
+        )
+
+    @tasks.loop(hours=24)
+    async def scrape_score_updates(self):
+        await self.scrape_channel(
+            self, None, 0, 0, self.bot.get_channel(758293511514226718)
         )
 
     @scrape.error
