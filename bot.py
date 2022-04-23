@@ -1,3 +1,4 @@
+from dis import dis, disco
 import logging
 
 import discord
@@ -5,7 +6,8 @@ from discord.ext import commands
 
 import config
 
-bot = commands.Bot(command_prefix="|")
+activity = discord.Activity(type=discord.ActivityType.watching, name="#eth-memes")
+bot = commands.Bot(command_prefix="|", activity=activity)
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
