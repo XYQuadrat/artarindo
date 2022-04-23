@@ -21,15 +21,15 @@ class Scrape(commands.Cog):
         self.scrape_score_updates.start()
 
     def get_score(self, message):
-        upvoteReaction = next(
+        upvote = next(
             (r for r in message.reactions if str(r) == f"<:this:{UPVOTE_ID}>"), None
         )
-        downvoteReaction = next(
+        downvote = next(
             (r for r in message.reactions if str(r) == f"<:that:{DOWNVOTE_ID}>"),
             None,
         )
 
-        score = (upvoteReaction.count or 0) - (downvoteReaction.count or 0)
+        score = (upvote.count if upvote else 0) - (downvote.count if downvote else 0)
 
         return score
 
