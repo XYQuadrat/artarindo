@@ -14,7 +14,9 @@ class Memeinfo(commands.Cog):
         """Get statistics about your meme game in #eth-memes. Takes no arguments."""
         username = ctx.author.name + "#" + ctx.author.discriminator
         if not sql.user_has_records(self.sql_con, username):
-            ctx.send("No memes from #eth-memes are associated with your username.")
+            await ctx.send(
+                "No memes from #eth-memes are associated with your username."
+            )
         else:
             info = UserInfo()
             sql.user_get_score_info(self.sql_con, username, info)
@@ -30,7 +32,7 @@ class Memeinfo(commands.Cog):
             )
             msg.add_field(
                 name="Average Karma",
-                value=f"Your memes have an average karma score of `{info.score_avg}:.2f`, which places you on rank `{info.score_rank}`.",
+                value=f"Your memes have an average karma score of `{info.score_avg:.2f}`, which places you on rank `{info.score_rank}`.",
             )
 
             await ctx.reply(embed=msg)
