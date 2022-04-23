@@ -1,4 +1,5 @@
 import logging
+from textwrap import indent
 from typing import Optional
 import discord
 from discord.ext import commands
@@ -29,6 +30,7 @@ class Memeinfo(commands.Cog):
             info = UserInfo()
             sql.user_get_score_info(self.sql_con, username, info)
             sql.user_get_count_info(self.sql_con, username, info)
+            sql.user_get_hindex(self.sql_con, username, info)
 
             msg = discord.Embed(
                 description=f"Meme Statistics For {username}",
@@ -41,6 +43,10 @@ class Memeinfo(commands.Cog):
             msg.add_field(
                 name="Average Karma",
                 value=f"Your memes have an average karma score of `{info.score_avg:.2f}`, which places you on rank `{info.score_rank}`.",
+            )
+            msg.add_field(
+                name="h-index",
+                value=f"You have a h-index of `{info.hindex}`(that means {info.hindex} with at least {info.hindex} karma).",
             )
 
             await ctx.reply(embed=msg)
@@ -58,3 +64,4 @@ class UserInfo:
     score_rank = 0
     count = 0
     count_rank = 0
+    hindex = 0

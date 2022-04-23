@@ -79,3 +79,17 @@ def user_get_count_info(con: sqlite3.Connection, user: str, info: UserInfo):
 
     info.count = row[0]
     info.count_rank = row[1]
+
+
+def user_get_hindex(con: sqlite3.Connection, user: str, info: UserInfo):
+    row = con.execute(
+        """SELECT MAX(Ranking)
+        FROM (SELECT Author, Score, ROW_NUMBER() OVER (PARTITION BY Author ORDER BY Score DESC) AS Ranking
+            FROM MediaItem)
+        WHERE Ranking <= Score AND Author = :user
+        GROUP BY Author
+        ORDER BY MAX(Ranking) DESC""",
+        {"user": user},
+    ).fetchone()
+
+    info.hindex = row[0]
