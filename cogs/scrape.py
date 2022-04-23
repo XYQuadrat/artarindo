@@ -20,8 +20,8 @@ class Scrape(commands.Cog):
         if not self.scrape_new_memes.is_running():
             self.scrape_new_memes.start()
 
-        # if not self.scrape_score_updates.is_running():
-        # self.scrape_score_updates.start()
+        if not self.scrape_score_updates.is_running():
+            self.scrape_score_updates.start()
 
     def get_score(self, message):
         upvote = next(
