@@ -63,7 +63,7 @@ class Scrape(commands.Cog):
 
         async for message in channel.history(limit=msg_limit):
             # ignore messages with xmark reaction
-            if next(r for r in message.reactions if str(r) == f"<:xmark:{IGNORE_ID}>"):
+            if any(str(r) == f"<:xmark:{IGNORE_ID}>" for r in message.reactions):
                 logging.info(f"Skipping message with ID {message.id}")
                 continue
 
