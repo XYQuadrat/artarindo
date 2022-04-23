@@ -10,6 +10,7 @@ import cogs.sql as sql
 
 UPVOTE_ID = 747783377662378004
 DOWNVOTE_ID = 758262252699779073
+IGNORE_ID = 769279807916998728
 
 
 class Scrape(commands.Cog):
@@ -26,10 +27,8 @@ class Scrape(commands.Cog):
             None,
         )
 
-        score = None
+        score = (upvoteReaction.count or 0) - (downvoteReaction.count or 0)
 
-        if upvoteReaction is not None and downvoteReaction is not None:
-            score = upvoteReaction.count - downvoteReaction.count
         return score
 
     @commands.command()
@@ -61,6 +60,11 @@ class Scrape(commands.Cog):
         )
 
         async for message in channel.history(limit=msg_limit):
+            # ignore messages with xmark reaction
+            if next(r for r in message.reactions if str(r) == f"<:xmark:{IGNORE_ID}>"):
+                logging.info(f"Skipping message with ID {message.id}")
+                continue
+
             for attachment in message.attachments:
                 orig_name, extension = os.path.splitext(attachment.filename)
                 filename = str(attachment.id) + extension
@@ -92,14 +96,16 @@ class Scrape(commands.Cog):
                     "Inserted attachment %s into DB with score %s", filename, score
                 )
 
-    @tasks.loop(minutes=10)
+    @tasks.loop(minutes=10.0)
     async def scrape_new_memes(self):
+        logging.info("Starting scrape of the ten latest messages in #eth-memes")
         await self.scrape_channel(
             self, 10, 0, 0, self.bot.get_channel(758293511514226718)
         )
 
-    @tasks.loop(hours=24)
+    @tasks.loop(hours=24.0)
     async def scrape_score_updates(self):
+        logging.info("Starting daily scrape of #eth-memes")
         await self.scrape_channel(
             self, None, 0, 0, self.bot.get_channel(758293511514226718)
         )
