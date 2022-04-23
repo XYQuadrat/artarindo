@@ -63,8 +63,8 @@ def user_get_score_info(con: sqlite3.Connection, user: str, info: UserInfo):
         {"user": user},
     ).fetchone()
 
-    info.score_avg = row["ScoreAvg"]
-    info.score_rank = row["ScoreRank"]
+    info.score_avg = row[0]
+    info.score_rank = row[1]
 
 
 def user_get_count_info(con: sqlite3.Connection, user: str, info: UserInfo):
@@ -77,5 +77,5 @@ def user_get_count_info(con: sqlite3.Connection, user: str, info: UserInfo):
         {"user": user},
     ).fetchone()
 
-    info.count = row["Count"]
-    info.count_rank = row["CountRank"]
+    info.count = row[0]
+    info.count_rank = row[1]
