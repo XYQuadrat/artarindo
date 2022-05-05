@@ -38,9 +38,10 @@ class Scrape(commands.Cog):
 
         return score
 
-    def generate_thumbnail(save_path: str):
-        pyvips.Image.thumbnail(filename=save_path, width=128, export_profile="srgb")
-        logging.info("Created thumbnail at " + save_path)
+    def generate_thumbnail(read_path: str, write_path: str):
+        out = pyvips.Image.thumbnail(read_path, 128)
+        out.write_to_file(write_path)
+        logging.info("Created thumbnail at " + write_path)
 
     @commands.command()
     @commands.is_owner()
@@ -109,7 +110,7 @@ class Scrape(commands.Cog):
                 )
 
                 if extension in ["jpeg", "jpg", "png"]:
-                    self.generate_thumbnail(thumbnail_path)
+                    self.generate_thumbnail(save_path, thumbnail_path)
 
     @tasks.loop(minutes=10.0)
     async def scrape_new_memes(self):
