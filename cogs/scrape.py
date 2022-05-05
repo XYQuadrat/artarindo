@@ -6,6 +6,8 @@ import config
 import discord
 from discord.ext import tasks, commands
 
+import pyvips
+
 import cogs.sql as sql
 
 UPVOTE_ID = 747783377662378004
@@ -35,6 +37,10 @@ class Scrape(commands.Cog):
         score = (upvote.count if upvote else 0) - (downvote.count if downvote else 0)
 
         return score
+
+    def generate_thumbnail(save_path: str):
+        pyvips.Image.thumbnail(filename=save_path, width=128, export_profile="srgb")
+        logging.info("Created thumbnail at " + save_path)
 
     @commands.command()
     @commands.is_owner()
@@ -86,6 +92,7 @@ class Scrape(commands.Cog):
                     continue
 
                 save_path = os.path.join(config.download_path, filename)
+                thumbnail_path = os.path.join(config.download_path, "thumb", filename)
 
                 await attachment.save(save_path)
 
@@ -100,6 +107,9 @@ class Scrape(commands.Cog):
                 logging.info(
                     "Inserted attachment %s into DB with score %s", filename, score
                 )
+
+                if extension in ["jpeg", "jpg", "png"]:
+                    self.generate_thumbnail(thumbnail_path)
 
     @tasks.loop(minutes=10.0)
     async def scrape_new_memes(self):
