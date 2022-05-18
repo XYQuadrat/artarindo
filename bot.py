@@ -13,7 +13,7 @@ logging.basicConfig(
     handlers=[logging.FileHandler("data/debug.log"), logging.StreamHandler()],
 )
 
-extensions = ["scrape", "memeinfo"]
+extensions = ["scrape", "memeinfo", "button"]
 
 
 @bot.event
