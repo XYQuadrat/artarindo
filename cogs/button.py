@@ -1,8 +1,8 @@
-from datetime import date
+from datetime import datetime
 from tabnanny import check
 from discord.ext import commands
 import discord
-from button_model import *
+from . import button_model
 import typing
 
 from config import CODE
@@ -12,6 +12,7 @@ class Button(commands.Cog):
     def __init__(self, bot) -> None:
         self.bot = bot
         self.current_code = CODE
+        self.challenge = None
         self.challenge_active = False
         self.challenge_start_time = datetime.now()
 
@@ -28,40 +29,49 @@ class Button(commands.Cog):
                     datetime.now() - self.challenge_start_time
                 ).total_seconds() // 3600 + 50
 
-                ctx.send(
-                    ctx.author
+                await ctx.send(
+                    str(ctx.author)
                     + " pressed the button and claimed "
-                    + points
+                    + str(points)
                     + " points!"
                 )
-                commands.Cooldown.reset()
+                ctx.command.reset_cooldown(ctx)
+                self.challenge
                 self.challenge_active = False
             else:
-                ctx.reply(
-                    "That's not the correct code. Are you sure you didn't enter your bank PIN?"
+                await ctx.reply(
+                    "That's not the correct code. Are you sure you didn't enter your bank PIN?",
+                    delete_after=10,
                 )
         else:
-            ctx.reply("The button is currently inactive. You cannot press it.")
+            await ctx.reply(
+                "The button is currently inactive. You cannot press it.",
+                delete_after=10,
+            )
 
-    @press.error()
-    async def press_error(ctx, error):
+    @press.error
+    async def press_error(self, ctx, error):
         if isinstance(error, commands.CommandOnCooldown):
-            ctx.reply(
-                "Slow down, _tyalindo_. You can only make 3 guesses within 24 hours."
+            await ctx.reply(
+                "Slow down, _tyalindo_. You can only make 3 guesses within 24 hours.",
+                delete_after=10,
             )
 
     @button.command()
     @commands.is_owner()
     async def add(self, ctx: commands.Context, challenge_name: str):
-        challenge = Challenge(name=challenge_name)
-        challenge.save()
-        ctx.reply(
-            "Challenge with name "
-            + challenge_name
-            + "created. For now, you must announce the challenge yourself."
-        )
-        self.challenge_active = True
-        self.challenge_start_time = datetime.now()
+        if self.challenge_active:
+            await ctx.reply("A challenge is already active.")
+        else:
+            self.challenge = button_model.Challenge(name=challenge_name)
+            self.challenge.save()
+            await ctx.reply(
+                "Challenge with name "
+                + challenge_name
+                + " created. For now, you must announce the challenge yourself."
+            )
+            self.challenge_active = True
+            self.challenge_start_time = datetime.now()
 
 
 def setup(bot):

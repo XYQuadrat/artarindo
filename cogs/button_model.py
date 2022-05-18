@@ -1,7 +1,8 @@
 from datetime import datetime
+from email.policy import default
 from peewee import *
 
-db = SqliteDatabase("../data/button.db")
+db = SqliteDatabase("data/button.db")
 
 
 class BaseModel(Model):
@@ -12,5 +13,8 @@ class BaseModel(Model):
 class Challenge(BaseModel):
     name = CharField()
     created_date = DateTimeField(default=datetime.now)
-    solved_date = DateTimeField(NULL=True)
-    solver = CharField(NULL=True)
+    solved_date = DateTimeField(null=True)
+    solver = CharField(null=True)
+
+
+db.create_tables([Challenge])

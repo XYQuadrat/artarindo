@@ -120,7 +120,7 @@ class Scrape(commands.Cog):
     @tasks.loop(hours=24.0)
     async def scrape_score_updates(self):
         logging.info("Starting daily scrape of #eth-memes")
-        await self.scrape_channel(None, 0, 0, self.bot.get_channel(758293511514226718))
+        # await self.scrape_channel(None, 0, 0, self.bot.get_channel(758293511514226718))
 
     @scrape.error
     async def scrape_error(ctx, error):
