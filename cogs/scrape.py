@@ -92,8 +92,8 @@ class Scrape(commands.Cog):
                     updated_count += 1
                     continue
 
-                save_path = os.path.join(config.download_path, filename)
-                thumbnail_path = os.path.join(config.download_path, "thumb", filename)
+                save_path = os.path.join(config.DOWNLOAD_PATH, filename)
+                thumbnail_path = os.path.join(config.DOWNLOAD_PATH, "thumb", filename)
 
                 await attachment.save(save_path)
 

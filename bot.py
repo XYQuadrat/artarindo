@@ -38,4 +38,4 @@ async def reload_extensions():
             logging.info(f"Extension {extension} was not loaded, loading now...")
 
 
-bot.run(config.token)
+bot.run(config.TOKEN)
