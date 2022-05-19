@@ -15,6 +15,7 @@ class Challenge(BaseModel):
     created_date = DateTimeField(default=datetime.now)
     solved_date = DateTimeField(null=True)
     solver = CharField(null=True)
+    points = IntegerField(default=0)
 
 
 db.create_tables([Challenge])
