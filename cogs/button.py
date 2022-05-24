@@ -48,6 +48,8 @@ class Button(commands.Cog):
                 return
 
             if code == self.current_code:
+                self.active_challenge = None
+
                 points = (
                     datetime.now() - self.challenge_start_time
                 ).total_seconds() // 3600 + 50
@@ -56,7 +58,7 @@ class Button(commands.Cog):
                     str(ctx.author)
                     + " pressed the button and claimed "
                     + str(points)
-                    + " points!"
+                    + " points! If you want to, then send a picture of where the Button was hidden and explain how you arrived at the solution."
                 )
                 ctx.command.reset_cooldown(ctx)
                 self.active_challenge.solved_date = datetime.now()
