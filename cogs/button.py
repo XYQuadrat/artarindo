@@ -1,5 +1,5 @@
 from datetime import datetime
-from discord.ext import commands
+from discord.ext import tasks, commands
 import discord
 from button_model import *
 import typing
@@ -13,8 +13,6 @@ class Button(commands.Cog):
         self.current_code = CODE
         self.active_challenge = None
         self.get_active_challenge()
-
-        self.challenge_start_time = datetime.now()
 
     def get_active_challenge(self):
         try:
@@ -51,7 +49,7 @@ class Button(commands.Cog):
                 self.active_challenge = None
 
                 points = (
-                    datetime.now() - self.challenge_start_time
+                    datetime.now() - self.active_challenge.created_date
                 ).total_seconds() // 3600 + 50
 
                 await ctx.send(
@@ -99,7 +97,6 @@ class Button(commands.Cog):
                 + challenge_name
                 + " created. For now, you must announce the challenge yourself."
             )
-            self.challenge_start_time = datetime.now()
 
     @button.command()
     async def leaderboard(self, ctx: commands.Context):
@@ -113,6 +110,16 @@ class Button(commands.Cog):
 
         await ctx.reply(embed=embed)
 
+    @tasks.loop(hours=1.0)
+    async def remind(self):
+        if self.active_challenge:
+            spam = self.bot.get_channel(768600365602963496)
+            minutes_active = (datetime.now() - self.active_challenge.created_date).total_seconds() // 60
+
+            embed = discord.Embed(title="The Button", description=f"The Button has been active for **{minutes_active}** minutes and is worth {minutes_active // 60 + 50} points.")
+
+            await spam.send(embed=embed, delete_after=(60*60))
+            logging.info(f"Sent reminder to #spam")
 
 def setup(bot):
     bot.add_cog(Button(bot))
