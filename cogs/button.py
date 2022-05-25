@@ -46,8 +46,6 @@ class Button(commands.Cog):
                 return
 
             if code == self.current_code:
-                self.active_challenge = None
-
                 points = (
                     datetime.now() - self.active_challenge.created_date
                 ).total_seconds() // 3600 + 50
@@ -114,12 +112,18 @@ class Button(commands.Cog):
     async def remind(self):
         if self.active_challenge:
             spam = self.bot.get_channel(768600365602963496)
-            minutes_active = (datetime.now() - self.active_challenge.created_date).total_seconds() // 60
+            minutes_active = (
+                datetime.now() - self.active_challenge.created_date
+            ).total_seconds() // 60
 
-            embed = discord.Embed(title="The Button", description=f"The Button has been active for **{minutes_active}** minutes and is worth {minutes_active // 60 + 50} points.")
+            embed = discord.Embed(
+                title="The Button",
+                description=f"The Button has been active for **{minutes_active}** minutes and is worth {minutes_active // 60 + 50} points.",
+            )
 
-            await spam.send(embed=embed, delete_after=(60*60))
+            await spam.send(embed=embed, delete_after=(60 * 60))
             logging.info(f"Sent reminder to #spam")
+
 
 def setup(bot):
     bot.add_cog(Button(bot))
