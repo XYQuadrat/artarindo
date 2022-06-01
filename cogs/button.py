@@ -51,7 +51,8 @@ class Button(commands.Cog):
                 ).total_seconds() // 3600 + 50
 
                 await ctx.send(
-                    str(ctx.author)
+                    "<@&978664537312071750> "
+                    + str(ctx.author)
                     + " pressed the button and claimed "
                     + str(points)
                     + " points! If you want to, then send a picture of where the Button was hidden and explain how you arrived at the solution."
