@@ -1,8 +1,10 @@
 from datetime import datetime
+import enum
 from discord.ext import tasks, commands
 import discord
 from button_model import *
 import typing
+import logging
 
 from config import CODE
 
@@ -100,13 +102,27 @@ class Button(commands.Cog):
     @button.command()
     async def leaderboard(self, ctx: commands.Context):
         embed = discord.Embed(title="The Physical Button Game - Leaderboard")
-        for user in (
-            Challenge.select(Challenge.solver, fn.SUM(Challenge.points).alias("score"))
-            .group_by(Challenge.solver)
-            .limit(10)
-        ):
-            embed.add_field(name=user.solver, value=user.score)
+        ranks = ""
+        users = ""
+        scores = ""
 
+        for i, user in enumerate(
+            Challenge.select(
+                Challenge.solver,
+                fn.SUM(Challenge.points).alias("score"),
+                fn.COUNT(Challenge.solved_date).alias("count_solved"),
+            )
+            .group_by(fn.IFNULL(Challenge.solver, Challenge.created_date))
+            .order_by(SQL("score").desc())
+            .limit(5)
+        ):
+            ranks += f"**{i+1}.**\n"
+            users += user.solver + "\n"
+            scores += str(user.score) + "\n"
+
+        embed.add_field(name=f"**Rank:**", value=ranks)
+        embed.add_field(name=f"**Player:**", value=users)
+        embed.add_field(name=f"**Score:**", value=scores)
         await ctx.reply(embed=embed)
 
     @tasks.loop(hours=1.0)
