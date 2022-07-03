@@ -14,7 +14,8 @@ class Memeinfo(commands.Cog):
     async def memeinfo(
         self, ctx: commands.Context, user: Optional[discord.User] = None
     ):
-        """Get statistics about your meme game in #eth-memes. Optionally takes a mention of a user as an argument to look up their stats."""
+        """Get statistics about your meme game in #eth-memes.
+        Optionally takes a mention of a user as an argument to look up their stats."""
         if user:
             username = user.name + "#" + user.discriminator
         else:

@@ -33,7 +33,7 @@ async def reload_extensions():
         try:
             bot.reload_extension("cogs." + extension)
             logging.info(f"Reloaded extension: {extension}")
-        except Exception as e:
+        except commands.ExtensionNotLoaded:
             bot.load_extension("cogs." + extension)
             logging.info(f"Extension {extension} was not loaded, loading now...")
 

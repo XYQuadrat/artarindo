@@ -1,9 +1,8 @@
 from datetime import datetime
-import enum
 from discord.ext import tasks, commands
 import discord
-from button_model import *
-import typing
+from button_model import Challenge
+from peewee import fn, SQL
 import logging
 
 from config import CODE
@@ -11,7 +10,7 @@ from config import CODE
 
 class Button(commands.Cog):
     def __init__(self, bot) -> None:
-        self.bot = bot
+        self.bot: commands.Bot = bot
         self.current_code = CODE
         self.active_challenge = None
         self.get_active_challenge()
@@ -20,13 +19,13 @@ class Button(commands.Cog):
         try:
             newest_challenge: Challenge = (
                 Challenge.select()
-                .where(Challenge.solved_date == None)
+                .where(Challenge.solved_date is None)
                 .order_by(Challenge.created_date.desc())
                 .get()
             )
 
             self.active_challenge = newest_challenge
-        except:
+        except Exception:
             self.active_challenge = None
 
     @commands.group()
@@ -55,9 +54,10 @@ class Button(commands.Cog):
                 await ctx.send(
                     "<@&978664537312071750> "
                     + str(ctx.author)
-                    + " pressed the button and claimed "
+                    + " pressed The Button and claimed "
                     + str(points)
-                    + " points! If you want to, then send a picture of where the Button was hidden and explain how you arrived at the solution."
+                    + " points!\n"
+                    + "If you want to, send a picture of where The Button was hidden and explain how you arrived at the solution."
                 )
                 ctx.command.reset_cooldown(ctx)
                 self.active_challenge.solved_date = datetime.now()
@@ -66,6 +66,7 @@ class Button(commands.Cog):
                 self.active_challenge.save()
 
                 self.active_challenge = None
+                await self.bot.change_presence(status=discord.Status.idle)
             else:
                 await ctx.reply(
                     "That's not the correct code. Are you sure you didn't enter your bank PIN?",
@@ -96,8 +97,10 @@ class Button(commands.Cog):
             await ctx.reply(
                 "Challenge with name "
                 + challenge_name
-                + " created. For now, you must announce the challenge yourself."
+                + " created. Announce the challenge yourself."
             )
+
+            await self.bot.change_presence(status=discord.Status.online)
 
     @button.command()
     async def leaderboard(self, ctx: commands.Context):
@@ -120,9 +123,9 @@ class Button(commands.Cog):
             users += user.solver + "\n"
             scores += str(user.score) + "\n"
 
-        embed.add_field(name=f"**Rank:**", value=ranks)
-        embed.add_field(name=f"**Player:**", value=users)
-        embed.add_field(name=f"**Score:**", value=scores)
+        embed.add_field(name="**Rank:**", value=ranks)
+        embed.add_field(name="**Player:**", value=users)
+        embed.add_field(name="**Score:**", value=scores)
         await ctx.reply(embed=embed)
 
     @tasks.loop(hours=1.0)
@@ -139,7 +142,7 @@ class Button(commands.Cog):
             )
 
             await spam.send(embed=embed, delete_after=(60 * 60))
-            logging.info(f"Sent reminder to #spam")
+            logging.info("Sent reminder to #spam")
 
 
 def setup(bot):

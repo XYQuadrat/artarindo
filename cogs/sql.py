@@ -1,5 +1,4 @@
 import sqlite3
-import typing
 
 from cogs.memeinfo import UserInfo
 
@@ -21,8 +20,8 @@ def insert_meme(con: sqlite3.Connection, name: str, score, author: str):
 def exists_record(con: sqlite3.Connection, filename: str) -> bool:
     row = con.execute(
         """SELECT EXISTS(
-        SELECT 1 
-        FROM MediaItem 
+        SELECT 1
+        FROM MediaItem
         WHERE Filename = :name)""",
         {"name": filename},
     ).fetchone()[0]
@@ -32,8 +31,8 @@ def exists_record(con: sqlite3.Connection, filename: str) -> bool:
 
 def update_score(con: sqlite3.Connection, filename: str, score: int):
     con.execute(
-        """UPDATE MediaItem 
-        SET Score = :new_score 
+        """UPDATE MediaItem
+        SET Score = :new_score
         WHERE Filename = :filename""",
         {"new_score": score, "filename": filename},
     )
@@ -43,11 +42,11 @@ def update_score(con: sqlite3.Connection, filename: str, score: int):
 # BELOW: STAT FUNCTIONS
 
 
-def user_has_records(con: sqlite3.Connection, user: str):
+def user_has_records(con: sqlite3.Connection, user: str) -> bool:
     return con.execute(
         """SELECT EXISTS
-        (SELECT 1 
-        FROM MediaItem 
+        (SELECT 1
+        FROM MediaItem
         WHERE Author = :user)""",
         {"user": user},
     ).fetchone()[0]

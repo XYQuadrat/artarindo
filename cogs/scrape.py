@@ -3,7 +3,6 @@ import os
 from typing import Optional
 
 import config
-import discord
 from discord.ext import tasks, commands
 
 import pyvips
@@ -17,7 +16,7 @@ IGNORE_ID = 769279807916998728
 
 class Scrape(commands.Cog):
     def __init__(self, bot) -> None:
-        self.bot = bot
+        self.bot: commands.Bot = bot
         self.sql_con = sql.connect()
         if not self.scrape_new_memes.is_running():
             self.scrape_new_memes.start()
@@ -48,11 +47,12 @@ class Scrape(commands.Cog):
     async def scrape(
         self, ctx, channel_id: Optional[int] = None, msg_limit: Optional[int] = None
     ):
-        """(Admin-only) Scrape a channel (primarily #eth-memes) for images and videos. Download all media and store them in the DB, together with the associated score."""
+        """(Admin-only) Scrape a channel (primarily #eth-memes) for images and videos.
+        Download all media and store them in the DB, together with the associated score."""
         newly_added_count = 0
         updated_count = 0
 
-        if channel_id == None:
+        if channel_id is None:
             channel = ctx.channel
         else:
             channel = self.bot.get_channel(channel_id)
@@ -66,7 +66,6 @@ class Scrape(commands.Cog):
     async def scrape_channel(
         self, msg_limit, newly_added_count, updated_count, channel
     ):
-
         logging.info(
             "Getting messages from channel %s with limit = %s", channel.name, msg_limit
         )

@@ -1,6 +1,5 @@
 from datetime import datetime
-from email.policy import default
-from peewee import *
+from peewee import SqliteDatabase, Model, CharField, DateTimeField, IntegerField
 
 db = SqliteDatabase("data/button.db")
 
