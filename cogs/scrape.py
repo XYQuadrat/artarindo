@@ -78,6 +78,7 @@ class Scrape(commands.Cog):
 
             for attachment in message.attachments:
                 orig_name, extension = os.path.splitext(attachment.filename)
+                extension = extension.lower()
                 filename = str(attachment.id) + extension
                 logging.info("Processing attachment %s...", filename)
 
