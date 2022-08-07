@@ -10,7 +10,7 @@ def connect() -> sqlite3.Connection:
 
 def insert_meme(con: sqlite3.Connection, name: str, score, author: str):
     con.execute(
-        """INSERT INTO MediaItem(Filename, Score, Author)
+        """INSERT INTO media_item(filename, score, author)
            VALUES(?,?,?)""",
         (name, score, author),
     )
@@ -21,8 +21,8 @@ def exists_record(con: sqlite3.Connection, filename: str) -> bool:
     row = con.execute(
         """SELECT EXISTS(
         SELECT 1
-        FROM MediaItem
-        WHERE Filename = :name)""",
+        FROM media_item
+        WHERE filename = :name)""",
         {"name": filename},
     ).fetchone()[0]
 
@@ -31,9 +31,9 @@ def exists_record(con: sqlite3.Connection, filename: str) -> bool:
 
 def update_score(con: sqlite3.Connection, filename: str, score: int):
     con.execute(
-        """UPDATE MediaItem
-        SET Score = :new_score
-        WHERE Filename = :filename""",
+        """UPDATE media_item
+        SET score = :new_score
+        WHERE filename = :filename""",
         {"new_score": score, "filename": filename},
     )
     con.commit()
@@ -46,8 +46,8 @@ def user_has_records(con: sqlite3.Connection, user: str) -> bool:
     return con.execute(
         """SELECT EXISTS
         (SELECT 1
-        FROM MediaItem
-        WHERE Author = :user)""",
+        FROM media_item
+        WHERE author = :user)""",
         {"user": user},
     ).fetchone()[0]
 
@@ -55,10 +55,10 @@ def user_has_records(con: sqlite3.Connection, user: str) -> bool:
 def user_get_score_info(con: sqlite3.Connection, user: str, info: UserInfo):
     row = con.execute(
         """SELECT ScoreAvg, ScoreRank
-        FROM (SELECT Author, AVG(Score) as ScoreAvg, RANK() OVER (ORDER BY AVG(Score) DESC) ScoreRank
-        FROM MediaItem
-        GROUP BY Author)
-        WHERE Author = :user""",
+        FROM (SELECT author, AVG(score) as ScoreAvg, RANK() OVER (ORDER BY AVG(score) DESC) ScoreRank
+        FROM media_item
+        GROUP BY author)
+        WHERE author = :user""",
         {"user": user},
     ).fetchone()
 
@@ -69,10 +69,10 @@ def user_get_score_info(con: sqlite3.Connection, user: str, info: UserInfo):
 def user_get_count_info(con: sqlite3.Connection, user: str, info: UserInfo):
     row = con.execute(
         """SELECT Count, CountRank
-        FROM (SELECT Author, COUNT(Id) as Count, RANK() OVER (ORDER BY Count(Id) DESC) CountRank
-        FROM MediaItem
-        GROUP BY Author)
-        WHERE Author = :user""",
+        FROM (SELECT author, COUNT(id) as Count, RANK() OVER (ORDER BY Count(id) DESC) CountRank
+        FROM media_item
+        GROUP BY author)
+        WHERE author = :user""",
         {"user": user},
     ).fetchone()
 
@@ -83,10 +83,10 @@ def user_get_count_info(con: sqlite3.Connection, user: str, info: UserInfo):
 def user_get_hindex(con: sqlite3.Connection, user: str, info: UserInfo):
     row = con.execute(
         """SELECT MAX(Ranking)
-        FROM (SELECT Author, Score, ROW_NUMBER() OVER (PARTITION BY Author ORDER BY Score DESC) AS Ranking
-            FROM MediaItem)
-        WHERE Ranking <= Score AND Author = :user
-        GROUP BY Author
+        FROM (SELECT author, score, ROW_NUMBER() OVER (PARTITION BY author ORDER BY score DESC) AS Ranking
+            FROM media_item)
+        WHERE Ranking <= score AND author = :user
+        GROUP BY author
         ORDER BY MAX(Ranking) DESC""",
         {"user": user},
     ).fetchone()
