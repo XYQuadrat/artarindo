@@ -2,13 +2,13 @@ from typing import Optional
 import discord
 from discord.ext import commands
 
-import cogs.sql as sql
+from . import sql
+from . import user_info
 
 
 class Memeinfo(commands.Cog):
     def __init__(self, bot) -> None:
         self.bot = bot
-        self.sql_con = sql.connect()
 
     @commands.command()
     async def memeinfo(
@@ -21,15 +21,15 @@ class Memeinfo(commands.Cog):
         else:
             username = ctx.author.name + "#" + ctx.author.discriminator
 
-        if not sql.user_has_records(self.sql_con, username):
+        if not sql.user_has_records(username):
             await ctx.send(
                 "No memes from #eth-memes are associated with your username."
             )
         else:
-            info = UserInfo()
-            sql.user_get_score_info(self.sql_con, username, info)
-            sql.user_get_count_info(self.sql_con, username, info)
-            sql.user_get_hindex(self.sql_con, username, info)
+            info = user_info()
+            sql.user_get_score_info(username, info)
+            sql.user_get_count_info(username, info)
+            sql.user_get_hindex(username, info)
 
             msg = discord.Embed(
                 description=f"Meme Statistics For {username}",
@@ -53,14 +53,3 @@ class Memeinfo(commands.Cog):
 
 def setup(bot):
     bot.add_cog(Memeinfo(bot))
-
-
-class UserInfo:
-    def __init__(self) -> None:
-        pass
-
-    score_avg = 0
-    score_rank = 0
-    count = 0
-    count_rank = 0
-    hindex = 0

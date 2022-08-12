@@ -1,11 +1,11 @@
 from datetime import datetime
 from discord.ext import tasks, commands
 import discord
-from button_model import Challenge
+from artarindo.button_model import Challenge
 from peewee import fn, SQL
 import logging
 
-from config import CODE
+from artarindo.config import CODE
 
 
 class Button(commands.Cog):

@@ -2,12 +2,12 @@ import logging
 import os
 from typing import Optional
 
-import config
-from discord.ext import tasks, commands
-
+import discord
 import pyvips
+from artarindo import config
+from discord.ext import commands, tasks
 
-import cogs.sql as sql
+from . import sql
 
 UPVOTE_ID = 747783377662378004
 DOWNVOTE_ID = 758262252699779073
@@ -17,7 +17,6 @@ IGNORE_ID = 769279807916998728
 class Scrape(commands.Cog):
     def __init__(self, bot) -> None:
         self.bot: commands.Bot = bot
-        self.sql_con = sql.connect()
         if not self.scrape_new_memes.is_running():
             self.scrape_new_memes.start()
 
@@ -70,6 +69,7 @@ class Scrape(commands.Cog):
             "Getting messages from channel %s with limit = %s", channel.name, msg_limit
         )
 
+        message: discord.Message
         async for message in channel.history(limit=msg_limit):
             # ignore messages with xmark reaction
             if any(str(r) == f"<:xmark:{IGNORE_ID}>" for r in message.reactions):
@@ -84,11 +84,11 @@ class Scrape(commands.Cog):
 
                 score = self.get_score(message)
 
-                if sql.exists_record(self.sql_con, filename):
+                if sql.exists_record(filename):
                     logging.info(
                         "Attachment %s already exists in DB, updating score", filename
                     )
-                    sql.update_score(self.sql_con, filename, score)
+                    sql.update_score(filename, score)
                     updated_count += 1
                     continue
 
@@ -98,10 +98,11 @@ class Scrape(commands.Cog):
                 await attachment.save(save_path)
 
                 sql.insert_meme(
-                    self.sql_con,
                     filename,
                     score,
                     message.author.name + "#" + message.author.discriminator,
+                    message.jump_url,
+                    message.created_at,
                 )
                 newly_added_count += 1
 

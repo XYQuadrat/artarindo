@@ -1,7 +1,8 @@
 from datetime import datetime
 from peewee import SqliteDatabase, Model, CharField, DateTimeField, IntegerField
+from . import config
 
-db = SqliteDatabase("data/button.db")
+db = SqliteDatabase(config.DATA_PATH + "button.db")
 
 
 class BaseModel(Model):
@@ -17,4 +18,9 @@ class Challenge(BaseModel):
     points = IntegerField(default=0)
 
 
-db.create_tables([Challenge])
+def connect():
+    db.connect(reuse_if_open=True)
+
+
+def disconnect():
+    db.close()
