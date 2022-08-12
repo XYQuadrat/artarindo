@@ -89,6 +89,8 @@ class Scrape(commands.Cog):
                         "Attachment %s already exists in DB, updating score", filename
                     )
                     sql.update_score(filename, score)
+                    sql.update_data(filename, message.jump_url, message.created_at)
+
                     updated_count += 1
                     continue
 

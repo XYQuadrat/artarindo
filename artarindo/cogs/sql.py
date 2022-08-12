@@ -28,6 +28,13 @@ def update_score(filename: str, score: int) -> None:
     item.save()
 
 
+def update_data(filename: str, url: str, created_at: datetime.datetime) -> None:
+    item = MediaItem.get(MediaItem.filename == filename)
+    item.message_url = url
+    item.created_date = created_at
+    item.save()
+
+
 # BELOW: STAT FUNCTIONS
 
 
