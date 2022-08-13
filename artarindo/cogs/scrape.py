@@ -60,9 +60,7 @@ class Scrape(commands.Cog):
             f"Added {self.newly_added_count} memes to the DB and updated the score for {self.updated_count} memes."
         )
 
-    async def scrape_channel(
-        self, msg_limit, newly_added_count, updated_count, channel
-    ):
+    async def scrape_channel(self, msg_limit, channel):
         logging.info(
             "Getting messages from channel %s with limit = %s", channel.name, msg_limit
         )
@@ -118,12 +116,12 @@ class Scrape(commands.Cog):
     @tasks.loop(minutes=10.0)
     async def scrape_new_memes(self):
         logging.info("Starting scrape of the ten latest messages in #eth-memes")
-        await self.scrape_channel(10, 0, 0, self.bot.get_channel(758293511514226718))
+        await self.scrape_channel(10, self.bot.get_channel(758293511514226718))
 
     @tasks.loop(hours=24.0)
     async def scrape_score_updates(self):
         logging.info("Starting daily scrape of #eth-memes")
-        # await self.scrape_channel(None, 0, 0, self.bot.get_channel(758293511514226718))
+        # await self.scrape_channel(None, self.bot.get_channel(758293511514226718))
 
     @scrape.error
     async def scrape_error(ctx, error):
