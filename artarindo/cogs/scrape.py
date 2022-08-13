@@ -48,18 +48,18 @@ class Scrape(commands.Cog):
     ):
         """(Admin-only) Scrape a channel (primarily #eth-memes) for images and videos.
         Download all media and store them in the DB, together with the associated score."""
-        newly_added_count = 0
-        updated_count = 0
+        self.newly_added_count = 0
+        self.updated_count = 0
 
         if channel_id is None:
             channel = ctx.channel
         else:
             channel = self.bot.get_channel(channel_id)
 
-        await self.scrape_channel(msg_limit, newly_added_count, updated_count, channel)
+        await self.scrape_channel(msg_limit, channel)
 
         await ctx.send(
-            f"Added {newly_added_count} memes to the DB and updated the score for {updated_count} memes."
+            f"Added {self.newly_added_count} memes to the DB and updated the score for {self.updated_count} memes."
         )
 
     async def scrape_channel(
@@ -91,7 +91,7 @@ class Scrape(commands.Cog):
                     sql.update_score(filename, score)
                     sql.update_data(filename, message.jump_url, message.created_at)
 
-                    updated_count += 1
+                    self.updated_count += 1
                     continue
 
                 save_path = os.path.join(config.DOWNLOAD_PATH, filename)
@@ -106,7 +106,7 @@ class Scrape(commands.Cog):
                     message.jump_url,
                     message.created_at,
                 )
-                newly_added_count += 1
+                self.newly_added_count += 1
 
                 logging.info(
                     "Inserted attachment %s into DB with score %s", filename, score
