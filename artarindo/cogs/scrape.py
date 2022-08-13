@@ -48,8 +48,6 @@ class Scrape(commands.Cog):
     ):
         """(Admin-only) Scrape a channel (primarily #eth-memes) for images and videos.
         Download all media and store them in the DB, together with the associated score."""
-        self.newly_added_count = 0
-        self.updated_count = 0
 
         if channel_id is None:
             channel = ctx.channel
@@ -68,6 +66,8 @@ class Scrape(commands.Cog):
         logging.info(
             "Getting messages from channel %s with limit = %s", channel.name, msg_limit
         )
+        self.newly_added_count = 0
+        self.updated_count = 0
 
         message: discord.Message
         async for message in channel.history(limit=msg_limit):
