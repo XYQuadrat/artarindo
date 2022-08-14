@@ -36,7 +36,7 @@ class Scrape(commands.Cog):
 
         return score
 
-    def generate_thumbnail(read_path: str, write_path: str) -> None:
+    def generate_thumbnail(self, read_path: str, write_path: str) -> None:
         if os.path.isfile(write_path):
             return
 
@@ -94,7 +94,6 @@ class Scrape(commands.Cog):
                     sql.update_score(filename, score)
 
                     if extension in [".jpeg", ".jpg", ".png"]:
-
                         self.generate_thumbnail(save_path, thumbnail_path)
 
                     self.updated_count += 1
