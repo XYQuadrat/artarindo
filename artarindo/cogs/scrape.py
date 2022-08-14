@@ -93,7 +93,8 @@ class Scrape(commands.Cog):
                     )
                     sql.update_score(filename, score)
 
-                    if extension in ["jpeg", "jpg", "png"]:
+                    if extension in [".jpeg", ".jpg", ".png"]:
+
                         self.generate_thumbnail(save_path, thumbnail_path)
 
                     self.updated_count += 1
