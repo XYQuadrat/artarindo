@@ -1,5 +1,4 @@
 import datetime
-import logging
 from peewee import fn
 
 from .user_info import UserInfo
@@ -26,16 +25,6 @@ def exists_record(filename: str) -> bool:
 def update_score(filename: str, score: int) -> None:
     item = MediaItem.get(MediaItem.filename == filename)
     item.score = score
-    item.save()
-
-
-def update_data(filename: str, url: str, created_at: datetime.datetime) -> None:
-    if not url or not created_at:
-        logging.warn("Did not get URL or creation date for item " + filename)
-
-    item = MediaItem.get(MediaItem.filename == filename)
-    item.message_url = url
-    item.created_date = created_at
     item.save()
 
 

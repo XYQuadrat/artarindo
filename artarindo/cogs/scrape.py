@@ -36,7 +36,10 @@ class Scrape(commands.Cog):
 
         return score
 
-    def generate_thumbnail(read_path: str, write_path: str):
+    def generate_thumbnail(read_path: str, write_path: str) -> None:
+        if os.path.isfile(write_path):
+            return
+
         out = pyvips.Image.thumbnail(read_path, 128)
         out.write_to_file(write_path)
         logging.info("Created thumbnail at " + write_path)
@@ -81,19 +84,20 @@ class Scrape(commands.Cog):
                 logging.info("Processing attachment %s...", filename)
 
                 score = self.get_score(message)
+                save_path = os.path.join(config.DOWNLOAD_PATH, filename)
+                thumbnail_path = os.path.join(config.DOWNLOAD_PATH, "thumb", filename)
 
                 if sql.exists_record(filename):
                     logging.info(
                         "Attachment %s already exists in DB, updating score", filename
                     )
                     sql.update_score(filename, score)
-                    sql.update_data(filename, message.jump_url, message.created_at)
+
+                    if extension in ["jpeg", "jpg", "png"]:
+                        self.generate_thumbnail(save_path, thumbnail_path)
 
                     self.updated_count += 1
                     continue
-
-                save_path = os.path.join(config.DOWNLOAD_PATH, filename)
-                thumbnail_path = os.path.join(config.DOWNLOAD_PATH, "thumb", filename)
 
                 await attachment.save(save_path)
 
