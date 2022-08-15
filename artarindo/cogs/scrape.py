@@ -40,7 +40,7 @@ class Scrape(commands.Cog):
         if os.path.isfile(write_path):
             return
 
-        out = pyvips.Image.thumbnail(read_path, 128)
+        out = pyvips.Image.thumbnail(read_path, 256)
         out.write_to_file(write_path)
         logging.info("Created thumbnail at " + write_path)
 

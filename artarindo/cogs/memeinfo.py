@@ -2,8 +2,8 @@ from typing import Optional
 import discord
 from discord.ext import commands
 
-from . import sql
-from . import user_info
+import sql
+import user_info
 
 
 class Memeinfo(commands.Cog):
