@@ -1,8 +1,9 @@
 import datetime
-from peewee import fn
+from traceback import print_tb
+from peewee import fn, Select
 
 from .user_info import UserInfo
-from ..meme_model import MediaItem
+from ..meme_model import MediaItem, db
 
 
 def insert_meme(
@@ -43,30 +44,34 @@ def user_get_score_info(user: str, info: UserInfo) -> None:
     ).group_by(MediaItem.author)
 
     user_score_info = (
-        scoreboard.select(MediaItem.score_avg, MediaItem.score_rank)
-        .where(MediaItem.author == user)
+        Select(columns=[scoreboard.c.score_avg, scoreboard.c.score_rank])
+        .from_(scoreboard)
+        .where(scoreboard.c.author == user)
+        .bind(db)
         .get()
     )
 
-    info.score_avg = user_score_info.score_avg
-    info.score_rank = user_score_info.score_rank
+    info.score_avg = user_score_info["score_avg"]
+    info.score_rank = user_score_info["score_rank"]
 
 
 def user_get_count_info(user: str, info: UserInfo) -> None:
     scoreboard = MediaItem.select(
         MediaItem.author,
-        fn.COUNT(MediaItem.index).alias("count"),
-        fn.RANK().over(order_by=[fn.COUNT(MediaItem.index).desc()]).alias("count_rank"),
+        fn.COUNT(MediaItem.id).alias("count"),
+        fn.RANK().over(order_by=[fn.COUNT(MediaItem.id).desc()]).alias("count_rank"),
     ).group_by(MediaItem.author)
 
     user_count_info = (
-        scoreboard.select(MediaItem.count, MediaItem.count_rank)
-        .where(MediaItem.author == user)
+        Select(columns=[scoreboard.c.count, scoreboard.c.count_rank])
+        .from_(scoreboard)
+        .where(scoreboard.c.author == user)
+        .bind(db)
         .get()
     )
 
-    info.count = user_count_info.count
-    info.count_rank = user_count_info.count_rank
+    info.count = user_count_info["count"]
+    info.count_rank = user_count_info["count_rank"]
 
 
 def user_get_hindex(user: str, info: UserInfo) -> None:
@@ -76,12 +81,14 @@ def user_get_hindex(user: str, info: UserInfo) -> None:
         fn.ROW_NUMBER()
         .over(partition_by=[MediaItem.author], order_by=[MediaItem.score.desc()])
         .alias("ranking"),
+    ).alias("subq")
+
+    query = (
+        hindexes.select(fn.MAX(hindexes.c.ranking))
+        .from_(hindexes)
+        .where(hindexes.c.ranking <= hindexes.c.score and hindexes.c.author == user)
+        .group_by(hindexes.c.author)
+        .order_by(fn.MAX(hindexes.c.ranking).desc())
     )
 
-    info.hindex = (
-        hindexes.select(fn.MAX(hindexes.ranking))
-        .where(hindexes.ranking <= hindexes.score and hindexes.author == user)
-        .group_by(hindexes.author)
-        .order_by(fn.MAX(hindexes.ranking).desc())
-        .get()
-    )
+    info.hindex = query.get().ranking

@@ -2,8 +2,8 @@ from typing import Optional
 import discord
 from discord.ext import commands
 
-import sql
-import user_info
+from . import sql
+from . import user_info
 
 
 class Memeinfo(commands.Cog):
@@ -26,7 +26,7 @@ class Memeinfo(commands.Cog):
                 "No memes from #eth-memes are associated with your username."
             )
         else:
-            info = user_info()
+            info = user_info.UserInfo()
             sql.user_get_score_info(username, info)
             sql.user_get_count_info(username, info)
             sql.user_get_hindex(username, info)

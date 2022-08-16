@@ -2,8 +2,8 @@ class UserInfo:
     def __init__(self) -> None:
         pass
 
-    score_avg = 0
-    score_rank = 0
-    count = 0
-    count_rank = 0
-    hindex = 0
+    score_avg: int = 0
+    score_rank: int = 0
+    count: int = 0
+    count_rank: int = 0
+    hindex: int = 0
