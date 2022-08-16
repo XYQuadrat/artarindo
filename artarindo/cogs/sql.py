@@ -86,9 +86,11 @@ def user_get_hindex(user: str, info: UserInfo) -> None:
     query = (
         hindexes.select(fn.MAX(hindexes.c.ranking))
         .from_(hindexes)
-        .where(hindexes.c.ranking <= hindexes.c.score and hindexes.c.author == user)
+        .where(hindexes.c.ranking <= hindexes.c.score, hindexes.c.author == user)
         .group_by(hindexes.c.author)
         .order_by(fn.MAX(hindexes.c.ranking).desc())
     )
+
+    print(query)
 
     info.hindex = query.get().ranking
