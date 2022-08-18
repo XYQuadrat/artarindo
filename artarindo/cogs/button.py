@@ -145,5 +145,5 @@ class Button(commands.Cog):
             logging.info("Sent reminder to #spam")
 
 
-def setup(bot):
-    bot.add_cog(Button(bot))
+async def setup(bot):
+    await bot.add_cog(Button(bot))

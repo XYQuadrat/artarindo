@@ -1,3 +1,4 @@
+import datetime
 import logging
 import os
 from typing import Optional
@@ -114,7 +115,7 @@ class Scrape(commands.Cog):
                     "Inserted attachment %s into DB with score %s", filename, score
                 )
 
-                if extension in ["jpeg", "jpg", "png"]:
+                if extension in [".jpeg", ".jpg", ".png"]:
                     self.generate_thumbnail(save_path, thumbnail_path)
 
     @tasks.loop(minutes=10.0)
@@ -122,10 +123,10 @@ class Scrape(commands.Cog):
         logging.info("Starting scrape of the ten latest messages in #eth-memes")
         await self.scrape_channel(10, self.bot.get_channel(758293511514226718))
 
-    @tasks.loop(hours=24.0)
+    @tasks.loop(time=(datetime.time(hour=2, minute=0)))
     async def scrape_score_updates(self):
         logging.info("Starting daily scrape of #eth-memes")
-        # await self.scrape_channel(None, self.bot.get_channel(758293511514226718))
+        await self.scrape_channel(None, self.bot.get_channel(758293511514226718))
 
     @scrape.error
     async def scrape_error(ctx, error):
@@ -133,5 +134,5 @@ class Scrape(commands.Cog):
             await ctx.send("Only the _oamo_ may use this command.")
 
 
-def setup(bot):
-    bot.add_cog(Scrape(bot))
+async def setup(bot):
+    await bot.add_cog(Scrape(bot))

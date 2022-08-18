@@ -1,5 +1,4 @@
 import datetime
-from traceback import print_tb
 from peewee import fn, Select
 
 from .user_info import UserInfo

@@ -8,7 +8,9 @@ from . import config
 from . import meme_model
 
 activity = discord.Activity(type=discord.ActivityType.watching, name="#eth-memes")
-bot = commands.Bot(command_prefix="|", activity=activity)
+intents = discord.Intents.default()
+intents.message_content = True
+bot = commands.Bot(command_prefix="|", activity=activity, intents=intents)
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
@@ -24,7 +26,7 @@ extensions = ["scrape", "memeinfo", "button"]
 @bot.event
 async def on_ready():
     logging.info("Logged in as {0.user}".format(bot))
-    await reload_extensions()
+    await load_extensions()
     meme_model.connect()
     button_model.connect()
 
@@ -34,20 +36,10 @@ async def close():
     button_model.disconnect()
 
 
-@bot.command()
-@commands.is_owner()
-async def reload(ctx):
-    await reload_extensions()
-
-
-async def reload_extensions():
+async def load_extensions():
     for extension in extensions:
-        try:
-            bot.reload_extension("artarindo.cogs." + extension)
-            logging.info(f"Reloaded extension: {extension}")
-        except commands.ExtensionNotLoaded:
-            bot.load_extension("artarindo.cogs." + extension)
-            logging.info(f"Extension {extension} was not loaded, loading now...")
+        await bot.load_extension("artarindo.cogs." + extension)
+        logging.info(f"Extension {extension} was not loaded, loading now...")
 
 
 def start():

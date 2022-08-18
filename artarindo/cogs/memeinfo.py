@@ -51,5 +51,5 @@ class Memeinfo(commands.Cog):
             await ctx.reply(embed=msg)
 
 
-def setup(bot):
-    bot.add_cog(Memeinfo(bot))
+async def setup(bot):
+    await bot.add_cog(Memeinfo(bot))
