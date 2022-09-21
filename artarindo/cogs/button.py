@@ -1,7 +1,9 @@
 from datetime import datetime
+import typing
 from discord.ext import tasks, commands
 import discord
-from artarindo.button_model import Challenge
+from artarindo import config
+from artarindo.button_model import Challenge, Score
 from peewee import fn, SQL
 import logging
 
@@ -14,6 +16,8 @@ class Button(commands.Cog):
         self.current_code = CODE
         self.active_challenge = None
         self.get_active_challenge()
+        if not self.remind.is_running():
+            self.remind.start()
 
     def get_active_challenge(self):
         try:
@@ -51,10 +55,18 @@ class Button(commands.Cog):
                     datetime.now() - self.active_challenge.created_date
                 ).total_seconds() // 3600 + 50
 
+                solvers = [member.name for member in ctx.message.mentions]
+                solvers.append(ctx.author.name)
+                
+                if len(solvers) > 1:
+                    points *= 1.5
+                    # only keep unique names
+                    solvers = list(set(solvers))
+
                 await ctx.send(
                     "<@&978664537312071750> "
                     + str(ctx.author)
-                    + " pressed The Button and claimed "
+                    + " pressed The Button which was worth "
                     + str(points)
                     + " points!\n"
                     + "If you want to, send a picture of where The Button was hidden and explain how you arrived at the solution."
@@ -64,8 +76,16 @@ class Button(commands.Cog):
                 self.active_challenge.solver = str(ctx.author)
                 self.active_challenge.points = points
                 self.active_challenge.save()
+                
+                points_per_solver = points // len(solvers) 
+                await ctx.send(f"All solvers have received {points_per_solver} points.")
+                for solver in solvers:
+                    print("adding score for solver: " + solver)
+                    score = Score(challenge_id=self.active_challenge.index, username=solver, score=points_per_solver)
+                    score.save()
 
                 self.active_challenge = None
+
                 await self.bot.change_presence(status=discord.Status.idle)
             else:
                 await ctx.reply(
@@ -92,7 +112,7 @@ class Button(commands.Cog):
         if self.active_challenge:
             await ctx.reply("A challenge is already active.")
         else:
-            self.active_challenge = Challenge(name=challenge_name)
+            self.active_challenge = Challenge(name=challenge_name, season=config.BUTTON_SEASON)
             self.active_challenge.save()
             await ctx.reply(
                 "Challenge with name "
@@ -103,8 +123,11 @@ class Button(commands.Cog):
             await self.bot.change_presence(status=discord.Status.online)
 
     @button.command()
-    async def leaderboard(self, ctx: commands.Context):
-        embed = discord.Embed(title="The Physical Button Game - Leaderboard")
+    async def leaderboard(self, ctx: commands.Context, season: typing.Optional[int]):
+        if not season:
+            season = config.BUTTON_SEASON
+
+        embed = discord.Embed(title=f"The Button Game - Season {season} Leaderboard")
         ranks = ""
         users = ""
         scores = ""
@@ -115,6 +138,7 @@ class Button(commands.Cog):
                 fn.SUM(Challenge.points).alias("score"),
                 fn.COUNT(Challenge.solved_date).alias("count_solved"),
             )
+            .where(Challenge.season == season)
             .group_by(fn.IFNULL(Challenge.solver, Challenge.created_date))
             .order_by(SQL("score").desc())
             .limit(5)
@@ -123,12 +147,15 @@ class Button(commands.Cog):
             users += user.solver + "\n"
             scores += str(user.score) + "\n"
 
-        embed.add_field(name="**Rank:**", value=ranks)
-        embed.add_field(name="**Player:**", value=users)
-        embed.add_field(name="**Score:**", value=scores)
-        await ctx.reply(embed=embed)
+        if ranks == "":
+            await ctx.reply("No scores recorded for this season yet.")
+        else:
+            embed.add_field(name="**Rank:**", value=ranks)
+            embed.add_field(name="**Player:**", value=users)
+            embed.add_field(name="**Score:**", value=scores)
+            await ctx.reply(embed=embed)
 
-    @tasks.loop(hours=1.0)
+    @tasks.loop(hours=6.0)
     async def remind(self):
         if self.active_challenge:
             spam = self.bot.get_channel(768600365602963496)

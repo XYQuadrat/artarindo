@@ -16,7 +16,12 @@ class Challenge(BaseModel):
     solved_date = DateTimeField(null=True)
     solver = CharField(null=True)
     points = IntegerField(default=0)
+    season = IntegerField()
 
+class Score(BaseModel):
+    challenge_id = IntegerField()
+    username = CharField()
+    score = IntegerField()
 
 def connect():
     db.connect(reuse_if_open=True)
