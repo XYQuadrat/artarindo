@@ -23,7 +23,7 @@ class Button(commands.Cog):
         try:
             newest_challenge: Challenge = (
                 Challenge.select()
-                .where(Challenge.solved_date is None)
+                .where(Challenge.solved_date.is_null())
                 .order_by(Challenge.created_date.desc())
                 .get()
             )
