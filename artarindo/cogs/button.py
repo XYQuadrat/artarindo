@@ -71,8 +71,8 @@ class Button(commands.Cog):
                 self.active_challenge.points = points
                 self.active_challenge.save()
                 
-                solvers = [member.name for member in ctx.message.mentions]
-                solvers.append(ctx.author.name)
+                solvers = [str(member) for member in ctx.message.mentions]
+                solvers.append(str(ctx.author))
                 
                 if len(solvers) > 1:
                     points *= 1.5
@@ -131,18 +131,18 @@ class Button(commands.Cog):
         scores = ""
 
         for i, user in enumerate(
-            Challenge.select(
-                Challenge.solver,
-                fn.SUM(Challenge.points).alias("score"),
-                fn.COUNT(Challenge.solved_date).alias("count_solved"),
+            Score.select(
+                Score.username,
+                fn.SUM(Score.score).alias("score")
             )
-            .where((Challenge.season == season) & (Challenge.solver.is_null(False)))
-            .group_by(Challenge.solver)
+            .join(Challenge, on=(Score.challenge_id == Challenge.id))
+            .where(Challenge.season == season)
+            .group_by(Score.username)
             .order_by(SQL("score").desc())
             .limit(5)
         ):
             ranks += f"**{i+1}.**\n"
-            users += user.solver + "\n"
+            users += user.username + "\n"
             scores += str(user.score) + "\n"
 
         if ranks == "":
