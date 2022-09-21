@@ -55,20 +55,14 @@ class Button(commands.Cog):
                     datetime.now() - self.active_challenge.created_date
                 ).total_seconds() // 3600 + 50
 
-                solvers = [member.name for member in ctx.message.mentions]
-                solvers.append(ctx.author.name)
-                
-                if len(solvers) > 1:
-                    points *= 1.5
-                    # only keep unique names
-                    solvers = list(set(solvers))
-
                 await ctx.send(
                     "<@&978664537312071750> "
                     + str(ctx.author)
                     + " pressed The Button which was worth "
                     + str(points)
-                    + " points!\n"
+                    + " points ("
+                    + str(points * 1.5) 
+                    + " points for groups)!\n"
                     + "If you want to, send a picture of where The Button was hidden and explain how you arrived at the solution."
                 )
                 ctx.command.reset_cooldown(ctx)
@@ -77,11 +71,18 @@ class Button(commands.Cog):
                 self.active_challenge.points = points
                 self.active_challenge.save()
                 
+                solvers = [member.name for member in ctx.message.mentions]
+                solvers.append(ctx.author.name)
+                
+                if len(solvers) > 1:
+                    points *= 1.5
+                    # only keep unique names
+                    solvers = list(set(solvers))
+                    
                 points_per_solver = points // len(solvers) 
                 await ctx.send(f"All solvers have received {points_per_solver} points.")
                 for solver in solvers:
-                    print("adding score for solver: " + solver)
-                    score = Score(challenge_id=self.active_challenge.index, username=solver, score=points_per_solver)
+                    score = Score(challenge_id=self.active_challenge.id, username=solver, score=points_per_solver)
                     score.save()
 
                 self.active_challenge = None
