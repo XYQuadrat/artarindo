@@ -124,10 +124,7 @@ class Button(commands.Cog):
             await self.bot.change_presence(status=discord.Status.online)
 
     @button.command()
-    async def leaderboard(self, ctx: commands.Context, season: typing.Optional[int]):
-        if not season:
-            season = config.BUTTON_SEASON
-
+    async def leaderboard(self, ctx: commands.Context, season: typing.Optional[int] = config.BUTTON_SEASON):
         embed = discord.Embed(title=f"The Button Game - Season {season} Leaderboard")
         ranks = ""
         users = ""
@@ -139,8 +136,8 @@ class Button(commands.Cog):
                 fn.SUM(Challenge.points).alias("score"),
                 fn.COUNT(Challenge.solved_date).alias("count_solved"),
             )
-            .where(Challenge.season == season)
-            .group_by(fn.IFNULL(Challenge.solver, Challenge.created_date))
+            .where((Challenge.season == season) & (Challenge.solver.is_null(False)))
+            .group_by(Challenge.solver)
             .order_by(SQL("score").desc())
             .limit(5)
         ):
