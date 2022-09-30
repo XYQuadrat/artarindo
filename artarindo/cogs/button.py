@@ -1,4 +1,5 @@
 from datetime import datetime
+import math
 import typing
 from discord.ext import tasks, commands
 import discord
@@ -67,22 +68,22 @@ class Button(commands.Cog):
                 )
                 ctx.command.reset_cooldown(ctx)
                 self.active_challenge.solved_date = datetime.now()
-                self.active_challenge.solver = str(ctx.author)
+                self.active_challenge.solver_id = ctx.author.id
                 self.active_challenge.points = points
                 self.active_challenge.save()
-                
-                solvers = [str(member) for member in ctx.message.mentions]
-                solvers.append(str(ctx.author))
-                
-                if len(solvers) > 1:
+
+                solver_ids = [member.id for member in ctx.message.mentions]
+                solver_ids.append(ctx.author.id)
+
+                if len(solver_ids) > 1:
                     points *= 1.5
                     # only keep unique names
-                    solvers = list(set(solvers))
-                    
-                points_per_solver = points // len(solvers) 
+                    solver_ids = list(set(solver_ids))
+
+                points_per_solver = math.ceil(points / len(solver_ids))
                 await ctx.send(f"All solvers have received {points_per_solver} points.")
-                for solver in solvers:
-                    score = Score(challenge_id=self.active_challenge.id, username=solver, score=points_per_solver)
+                for solver in solver_ids:
+                    score = Score(challenge_id=self.active_challenge.id, user_id=solver, score=points_per_solver)
                     score.save()
 
                 self.active_challenge = None
@@ -132,17 +133,24 @@ class Button(commands.Cog):
 
         for i, user in enumerate(
             Score.select(
-                Score.username,
+                Score.user_id,
                 fn.SUM(Score.score).alias("score")
             )
             .join(Challenge, on=(Score.challenge_id == Challenge.id))
             .where(Challenge.season == season)
-            .group_by(Score.username)
+            .group_by(Score.user_id)
             .order_by(SQL("score").desc())
             .limit(5)
         ):
+            member = await ctx.guild.fetch_member(user.user_id)
+
+            if member is None:
+                member = str(await self.bot.fetch_user(user.user_id))
+            else:
+                member = member.nick
+
             ranks += f"**{i+1}.**\n"
-            users += user.username + "\n"
+            users += member + "\n"
             scores += str(user.score) + "\n"
 
         if ranks == "":
