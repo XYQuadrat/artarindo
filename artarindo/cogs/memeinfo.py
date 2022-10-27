@@ -1,4 +1,5 @@
 from typing import Optional
+from unicodedata import name
 import discord
 from discord.ext import commands
 
@@ -12,25 +13,24 @@ class Memeinfo(commands.Cog):
 
     @commands.command()
     async def memeinfo(
-        self, ctx: commands.Context, user: Optional[discord.User] = None
+        self, ctx: commands.Context, user: Optional[discord.Member] = None
     ):
         """Get statistics about your meme game in #eth-memes.
         Optionally takes a mention of a user as an argument to look up their stats."""
-        if user:
-            username = user.name + "#" + user.discriminator
-        else:
-            username = ctx.author.name + "#" + ctx.author.discriminator
+        if not user:
+            user = ctx.author
 
-        if not sql.user_has_records(username):
+        if not sql.user_has_records(user.id):
             await ctx.send(
                 "No memes from #eth-memes are associated with your username."
             )
         else:
             info = user_info.UserInfo()
-            sql.user_get_score_info(username, info)
-            sql.user_get_count_info(username, info)
-            sql.user_get_hindex(username, info)
+            sql.user_get_score_info(user.id, info)
+            sql.user_get_count_info(user.id, info)
+            sql.user_get_hindex(user.id, info)
 
+            username = user.nick if user.nick else user.name
             msg = discord.Embed(
                 description=f"Meme Statistics For {username}",
                 color=discord.Color.dark_blue(),

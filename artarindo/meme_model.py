@@ -21,7 +21,7 @@ class BaseModel(Model):
 class MediaItem(BaseModel):
     filename = TextField(null=False)
     score = IntegerField()
-    author = TextField(default="Unknown#0000")
+    author_id = TextField(default="00000")
     message_url = TextField(null=True)
     created_date = DateTimeField(null=True)
 

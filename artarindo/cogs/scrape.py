@@ -89,13 +89,11 @@ class Scrape(commands.Cog):
                 thumbnail_path = os.path.join(config.DOWNLOAD_PATH, "thumb", filename)
 
                 if sql.exists_record(filename):
+                    sql.move_username_to_id(filename, message.author.id)
                     logging.info(
                         "Attachment %s already exists in DB, updating score", filename
                     )
                     sql.update_score(filename, score)
-
-                    if extension in [".jpeg", ".jpg", ".png"]:
-                        self.generate_thumbnail(save_path, thumbnail_path)
 
                     self.updated_count += 1
                     continue
@@ -105,7 +103,7 @@ class Scrape(commands.Cog):
                 sql.insert_meme(
                     filename,
                     score,
-                    message.author.name + "#" + message.author.discriminator,
+                    message.author.id,
                     message.jump_url,
                     message.created_at,
                 )
