@@ -21,7 +21,7 @@ class BaseModel(Model):
 class MediaItem(BaseModel):
     filename = TextField(null=False)
     score = IntegerField()
-    author_id = TextField(default="00000")
+    author_id = IntegerField(default="00000")
     message_url = TextField(null=True)
     created_date = DateTimeField(null=True)
 
@@ -36,6 +36,11 @@ class MediaItemTag(BaseModel):
 
     class Meta:
         primary_key = CompositeKey("media_item_id", "tag_id")
+
+
+class Username(BaseModel):
+    author_id = IntegerField(primary_key=True)
+    username = TextField()
 
 
 def connect():

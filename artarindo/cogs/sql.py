@@ -2,7 +2,7 @@ import datetime
 from peewee import fn, Select
 
 from .user_info import UserInfo
-from ..meme_model import MediaItem, db
+from ..meme_model import MediaItem, Username, db
 
 
 def insert_meme(
@@ -28,9 +28,10 @@ def update_score(filename: str, score: int) -> None:
     item.save()
 
 
-def move_username_to_id(filename: str, id: int) -> None:
-    item = MediaItem.get(MediaItem.filename == filename)
-    item.author_id = id
+def save_username_mapping(username: str, id: int) -> None:
+    item, created = Username.get_or_create(author_id=id, username=username)
+    if not created:
+        item.username = username
     item.save()
 
 

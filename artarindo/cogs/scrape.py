@@ -89,7 +89,7 @@ class Scrape(commands.Cog):
                 thumbnail_path = os.path.join(config.DOWNLOAD_PATH, "thumb", filename)
 
                 if sql.exists_record(filename):
-                    sql.move_username_to_id(filename, message.author.id)
+                    sql.save_username_mapping(message.author.name, message.author.id)
                     logging.info(
                         "Attachment %s already exists in DB, updating score", filename
                     )
