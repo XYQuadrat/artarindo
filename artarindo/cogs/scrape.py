@@ -87,9 +87,9 @@ class Scrape(commands.Cog):
                 score = self.get_score(message)
                 save_path = os.path.join(config.DOWNLOAD_PATH, filename)
                 thumbnail_path = os.path.join(config.DOWNLOAD_PATH, "thumb", filename)
+                sql.save_username_mapping(message.author.name, message.author.id)
 
                 if sql.exists_record(filename):
-                    sql.save_username_mapping(message.author.name, message.author.id)
                     logging.info(
                         "Attachment %s already exists in DB, updating score", filename
                     )
@@ -113,7 +113,7 @@ class Scrape(commands.Cog):
                     "Inserted attachment %s into DB with score %s", filename, score
                 )
 
-                if extension in [".jpeg", ".jpg", ".png"]:
+                if extension in [".jpeg", ".jpg", ".png", ".gif"]:
                     self.generate_thumbnail(save_path, thumbnail_path)
 
     @tasks.loop(minutes=10.0)
