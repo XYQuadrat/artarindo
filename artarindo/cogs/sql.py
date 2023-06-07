@@ -29,7 +29,7 @@ def update_score(filename: str, score: int) -> None:
 
 
 def save_username_mapping(username: str, id: int) -> None:
-    item, created = Username.get_or_create(author_id=id, username=username)
+    item, created = Username.get_or_create(author_id=id)
     if not created:
         item.username = username
     item.save()
