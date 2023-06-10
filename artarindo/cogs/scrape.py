@@ -87,7 +87,7 @@ class Scrape(commands.Cog):
                 score = self.get_score(message)
                 save_path = os.path.join(config.DOWNLOAD_PATH, filename)
                 thumbnail_path = os.path.join(config.DOWNLOAD_PATH, "thumb", filename)
-                sql.save_username_mapping(message.author.name, message.author.id)
+                # sql.save_username_mapping(message.author.name, message.author.id)
 
                 if sql.exists_record(filename):
                     logging.info(
