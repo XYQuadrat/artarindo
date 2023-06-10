@@ -113,7 +113,7 @@ class Scrape(commands.Cog):
                     "Inserted attachment %s into DB with score %s", filename, score
                 )
 
-                if extension in [".jpeg", ".jpg", ".png", ".gif"]:
+                if extension in [".jpeg", ".jpg", ".png", ".gif", ".webp"]:
                     self.generate_thumbnail(save_path, thumbnail_path)
 
     @tasks.loop(minutes=10.0)
